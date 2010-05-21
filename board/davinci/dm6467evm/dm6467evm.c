@@ -28,6 +28,14 @@ int board_init(void)
 	gd->bd->bi_arch_number = MACH_TYPE_DAVINCI_DM6467_EVM;
 	gd->bd->bi_boot_params = PHYS_SDRAM_1 + 0x100;
 
+	lpsc_on(DAVINCI_DM646X_LPSC_TIMER0);
+	lpsc_on(DAVINCI_DM646X_LPSC_UART0);
+	lpsc_on(DAVINCI_DM646X_LPSC_I2C);
+
+	/* Select UART function on UART0 */
+	REG(PINMUX0) &= ~(0x0000003f << 18);
+	REG(PINMUX1) &= ~(0x00000003);
+
 	return 0;
 }
 

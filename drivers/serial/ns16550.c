@@ -20,8 +20,16 @@
 #define serial_out(x,y)	outb(x,(ulong)y)
 #define serial_in(y)	inb((ulong)y)
 #else
+#if defined(CONFIG_SOC_DM646X)
+/* HACK - Avoid strb/ldrb instructions being generated on dm6467 UART access
+ * since it leads to system hang otherwise
+ */
+#define serial_out(x,y) writel(x,y)
+#define serial_in(y) 	readl(y)
+#else
 #define serial_out(x,y) writeb(x,y)
 #define serial_in(y) 	readb(y)
+#endif
 #endif
 
 void NS16550_init (NS16550_t com_port, int baud_divisor)
