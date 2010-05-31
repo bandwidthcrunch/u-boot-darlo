@@ -23,6 +23,8 @@
 /* Spectrum Digital TMS320DM6467 EVM board */
 #define DAVINCI_DM6467EVM
 #define CONFIG_DISPLAY_CPUINFO
+#define CONFIG_SYS_USE_NAND
+#define CONFIG_SYS_NAND_SMALLPAGE
 
 #define CONFIG_SKIP_LOWLEVEL_INIT
 
@@ -114,7 +116,7 @@ extern unsigned int davinci_arm_clk_get(void);
 #define CONFIG_SYS_LONGHELP
 #define CONFIG_CRC32_VERIFY
 #define CONFIG_MX_CYCLIC
-#define CONFIG_BOOTCOMMAND		"source 0x82080000; dhcp; bootm"
+#define CONFIG_BOOTCOMMAND		""
 #define CONFIG_BOOTARGS			\
 					"mem=120M console=ttyS0,115200n8 " \
 					"root=/dev/hda1 rw noinitrd ip=dhcp"
