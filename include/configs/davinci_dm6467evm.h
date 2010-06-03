@@ -82,6 +82,17 @@ extern unsigned int davinci_arm_clk_get(void);
 #define CONFIG_SYS_I2C_SPEED		80000
 #define CONFIG_SYS_I2C_SLAVE		10
 
+/* Network & Ethernet Configuration */
+#define CONFIG_DRIVER_TI_EMAC
+#define CONFIG_MII
+#define CONFIG_BOOTP_DEFAULT
+#define CONFIG_BOOTP_DNS
+#define CONFIG_BOOTP_DNS2
+#define CONFIG_BOOTP_SEND_HOSTNAME
+#define CONFIG_NET_RETRY_COUNT	10
+#define CONFIG_NET_MULTI
+#define CONFIG_CMD_NET
+
 /* Flash & Environment */
 #define CONFIG_SYS_NO_FLASH
 #ifdef CONFIG_SYS_USE_NAND
@@ -129,7 +140,8 @@ extern unsigned int davinci_arm_clk_get(void);
 #define CONFIG_CMD_MII
 #define CONFIG_CMD_SAVES
 #define CONFIG_CMD_EEPROM
-#undef CONFIG_CMD_NET
+#define CONFIG_CMD_PING
+#define CONFIG_CMD_DHCP
 #undef CONFIG_CMD_BDI
 #undef CONFIG_CMD_FPGA
 #undef CONFIG_CMD_SETGETDCR
