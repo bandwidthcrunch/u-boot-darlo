@@ -185,6 +185,15 @@ int board_init(void)
 	return(0);
 }
 
+#if defined(CONFIG_MISC_INIT_R)
+int misc_init_r(void)
+{
+	printf("ARM Clock : %d Hz\n", clk_get(DAVINCI_ARM_CLKID));
+
+	return(0);
+}
+#endif
+
 #if defined(CONFIG_DRIVER_TI_EMAC)
 
 #define PHY_SW_I2C_ADDR	0x5f /* Address of PHY on i2c bus */
