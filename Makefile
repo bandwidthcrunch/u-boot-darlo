@@ -926,6 +926,62 @@ cp922_XA10_config	\
 cp1026_config: unconfig
 	@board/armltd/integrator/split_by_variant.sh cp $@
 
+da830evm_config		\
+da830_omapl137_evm_config   \
+da850_omapl138_evm_config   \
+da850evm_config:	unconfig
+	@$(MKCONFIG) $(@:_config=) arm arm926ejs da8xxevm davinci davinci
+
+davinci_dvevm_config :	unconfig
+	@$(MKCONFIG) $(@:_config=) arm arm926ejs dvevm davinci davinci
+
+davinci_schmoogie_config :	unconfig
+	@$(MKCONFIG) $(@:_config=) arm arm926ejs schmoogie davinci davinci
+
+davinci_sffsdr_config :	unconfig
+	@$(MKCONFIG) $(@:_config=) arm arm926ejs sffsdr davinci davinci
+
+davinci_sonata_config :	unconfig
+	@$(MKCONFIG) $(@:_config=) arm arm926ejs sonata davinci davinci
+
+davinci_dm355evm_config :	unconfig
+	@$(MKCONFIG) $(@:_config=) arm arm926ejs dm355evm davinci davinci
+
+davinci_dm355leopard_config :	unconfig
+	@$(MKCONFIG) $(@:_config=) arm arm926ejs dm355leopard davinci davinci
+
+davinci_dm365evm_config :	unconfig
+	@$(MKCONFIG) $(@:_config=) arm arm926ejs dm365evm davinci davinci
+
+davinci_dm6467evm_config :	unconfig
+	@$(MKCONFIG) $(@:_config=) arm arm926ejs dm6467evm davinci davinci
+
+edminiv2_config: unconfig
+	@$(MKCONFIG) $(@:_config=) arm arm926ejs $(@:_config=) LaCie orion5x
+
+guruplug_config: unconfig
+	@$(MKCONFIG) $(@:_config=) arm arm926ejs $(@:_config=) Marvell kirkwood
+
+magnesium_config	\
+imx27lite_config:	unconfig
+	@$(MKCONFIG) $(@:_config=) arm arm926ejs imx27lite logicpd mx27
+
+lpd7a400_config \
+lpd7a404_config:	unconfig
+	@$(MKCONFIG) $(@:_config=) arm lh7a40x lpd7a40x
+
+mv88f6281gtw_ge_config: unconfig
+	@$(MKCONFIG) $(@:_config=) arm arm926ejs $(@:_config=) Marvell kirkwood
+
+mx1ads_config	:	unconfig
+	@$(MKCONFIG) $(@:_config=) arm arm920t mx1ads NULL imx
+
+mx1fs2_config	:	unconfig
+	@$(MKCONFIG) $(@:_config=) arm arm920t mx1fs2 NULL imx
+
+netstar_config:		unconfig
+	@$(MKCONFIG) $(@:_config=) arm arm925t netstar
+
 nhk8815_config \
 nhk8815_onenand_config:	unconfig
 	@mkdir -p $(obj)include
