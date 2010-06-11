@@ -22,13 +22,24 @@
 
 /* Spectrum Digital TMS320DM6467 EVM board */
 #define DAVINCI_DM6467EVM
+#define CONFIG_DISPLAY_CPUINFO
 
 #define CONFIG_SKIP_LOWLEVEL_INIT
 
 /* SoC Configuration */
 #define CONFIG_ARM926EJS				/* arm926ejs CPU */
+
+/* Clock rates detection */
+#ifndef __ASSEMBLY__
+extern unsigned int davinci_arm_clk_get(void);
+#endif
+
+#define CFG_REFCLK_FREQ		27000000
+/* Arm Clock frequency    */
+#define CONFIG_SYS_CLK_FREQ	davinci_arm_clk_get()
+/* Timer Input clock freq */
+#define CONFIG_SYS_HZ_CLOCK		(CONFIG_SYS_CLK_FREQ/2)
 #define CONFIG_SYS_TIMERBASE		0x01c21400	/* use timer 0 */
-#define CONFIG_SYS_HZ_CLOCK		27000000
 #define CONFIG_SYS_HZ			1000
 #define CONFIG_SOC_DM646X
 
