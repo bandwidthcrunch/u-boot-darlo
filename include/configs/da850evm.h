@@ -180,8 +180,8 @@
 #define CONFIG_CMDLINE_TAG
 #define CONFIG_REVISION_TAG
 #define CONFIG_SETUP_MEMORY_TAGS
-#define CONFIG_BOOTARGS		\
-	"mem=32M console=ttyS2,115200n8 root=/dev/mtdblock2 rw noinitrd ip=dhcp"
+#define CONFIG_BOOTARGS		"mem=32M console=ttyS2,115200n8 root=/dev/mmcblk0p1 rw rootwait ip=off"
+#define CONFIG_BOOTCOMMAND	"sf probe 0;sf read 0xc0700000 0x80000 0x220000;bootm 0xc0700000"
 #define CONFIG_BOOTDELAY	3
 
 /*
