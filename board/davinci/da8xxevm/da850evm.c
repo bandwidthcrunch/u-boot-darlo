@@ -25,10 +25,13 @@
 #include <i2c.h>
 #include <net.h>
 #include <netdev.h>
+#include <spi.h>
+#include <spi_flash.h>
 #include <asm/arch/hardware.h>
 #include <asm/arch/emif_defs.h>
 #include <asm/arch/emac_defs.h>
 #include <asm/io.h>
+#include <asm/errno.h>
 #include "../common/misc.h"
 #include "common.h"
 
@@ -280,4 +283,63 @@ int board_eth_init(bd_t *bis)
 
 	return 0;
 }
+
 #endif /* CONFIG_DRIVER_TI_EMAC */
+
+#define CFG_MAC_ADDR_SPI_BUS	0
+#define CFG_MAC_ADDR_SPI_CS	0
+#define CFG_MAC_ADDR_SPI_MAX_HZ	CONFIG_SF_DEFAULT_SPEED
+#define CFG_MAC_ADDR_SPI_MODE	SPI_MODE_3
+
+#define CFG_MAC_ADDR_OFFSET	(flash->size - SZ_64K)
+
+static int get_mac_addr(u8 *addr)
+{
+	int ret;
+	struct spi_flash *flash;
+
+	flash = spi_flash_probe(CFG_MAC_ADDR_SPI_BUS, CFG_MAC_ADDR_SPI_CS,
+			CFG_MAC_ADDR_SPI_MAX_HZ, CFG_MAC_ADDR_SPI_MODE);
+	if (!flash) {
+		printf(" Error - unable to probe SPI flash.\n");
+		goto err_probe;
+	}
+
+	ret = spi_flash_read(flash, CFG_MAC_ADDR_OFFSET, 6, addr);
+	if (ret) {
+		printf("Error - unable to read MAC address from SPI flash.\n");
+		goto err_read;
+	}
+
+err_read:
+	/* cannot call free currently since the free function calls free() for
+	 * spi_flash structure though it is not directly allocated through
+	 * malloc()
+	 */
+	/* spi_flash_free(flash); */
+err_probe:
+	return ret;
+}
+
+int misc_init_r(void)
+{
+	uint8_t tmp[20], addr[10];
+
+	printf("ARM Clock : %d Hz\n", clk_get(DAVINCI_ARM_CLKID));
+
+	if (getenv("ethaddr") == NULL) {
+		/* Set Ethernet MAC address from EEPROM */
+		get_mac_addr(addr);
+
+		if (is_multicast_ether_addr(addr) || is_zero_ether_addr(addr)) {
+			printf("Invalid MAC address read.\n");
+			return -EINVAL;
+		}
+		sprintf((char *)tmp, "%02x:%02x:%02x:%02x:%02x:%02x", addr[0],
+				addr[1], addr[2], addr[3], addr[4], addr[5]);
+
+		setenv("ethaddr", (char *)tmp);
+	}
+
+	return 0;
+}

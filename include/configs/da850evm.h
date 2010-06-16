@@ -157,6 +157,7 @@
 /*
  * U-Boot general configuration
  */
+#define CONFIG_MISC_INIT_R
 #define CONFIG_BOOTFILE		"uImage" /* Boot file name */
 #define CONFIG_SYS_PROMPT	"U-Boot > " /* Command Prompt */
 #define CONFIG_SYS_CBSIZE	1024 /* Console I/O Buffer Size	*/
