@@ -150,6 +150,12 @@ const struct pinmux_config nor_pins[] = {
 };
 #endif
 
+#ifdef CONFIG_DRIVER_TI_EMAC_USE_RMII
+#define HAS_RMII 1
+#else
+#define HAS_RMII 0
+#endif
+
 static const struct pinmux_resource pinmuxes[] = {
 #ifdef CONFIG_SPI_FLASH
 	PINMUX_ITEM(spi1_pins),
@@ -256,9 +262,7 @@ int board_init(void)
 #ifdef CONFIG_DRIVER_TI_EMAC
 	if (davinci_configure_pin_mux(emac_pins, ARRAY_SIZE(emac_pins)) != 0)
 		return 1;
-	/* set cfgchip3 to select MII */
-	writel(readl(&davinci_syscfg_regs->cfgchip3) & ~(1 << 8),
-			     &davinci_syscfg_regs->cfgchip3);
+	da850_emac_mii_mode_sel(HAS_RMII);
 #endif /* CONFIG_DRIVER_TI_EMAC */
 
 	/* enable the console UART */
@@ -370,6 +374,90 @@ static void dspwake(void)
 	REG(PSC0_MDCTL + (15 * 4)) |= 0x100;
 }
 
+#ifdef CONFIG_DRIVER_TI_EMAC_USE_RMII
+/**
+ * rmii_hw_init
+ *
+ * DA850/OMAP-L138 EVM can interface to a daughter card for
+ * additional features. This card has an I2C GPIO Expander TCA6416
+ * to select the required functions like camera, RMII Ethernet,
+ * character LCD, video.
+ *
+ * Initialization of the expander involves configuring the
+ * polarity and direction of the ports. P07-P05 are used here.
+ * These ports are connected to a Mux chip which enables only one
+ * functionality at a time.
+ *
+ * For RMII phy to respond, the MII MDIO clock has to be  disabled
+ * since both the PHY devices have address as zero. The MII MDIO
+ * clock is controlled via GPIO2[6].
+ *
+ * This code is valid for Beta version of the hardware
+ */
+int rmii_hw_init(void)
+{
+	const struct pinmux_config gpio_pins[] = {
+		{ pinmux(6), 8, 1 }
+	};
+	u_int8_t buf[2];
+	unsigned int temp;
+	int ret;
+
+	/* PinMux for GPIO */
+	if (davinci_configure_pin_mux(gpio_pins, ARRAY_SIZE(gpio_pins)) != 0)
+		return 1;
+
+	/* I2C Exapnder configuration */
+	/* Set polarity to non-inverted */
+	buf[0] = 0x0;
+	buf[1] = 0x0;
+	ret = i2c_write(CONFIG_SYS_I2C_EXPANDER_ADDR, 4, 1, buf, 2);
+	if (ret) {
+		printf("\nExpander @ 0x%02x write FAILED!!!\n",
+				CONFIG_SYS_I2C_EXPANDER_ADDR);
+		return ret;
+	}
+
+	/* Configure P07-P05 as outputs */
+	buf[0] = 0x1f;
+	buf[1] = 0xff;
+	ret = i2c_write(CONFIG_SYS_I2C_EXPANDER_ADDR, 6, 1, buf, 2);
+	if (ret) {
+		printf("\nExpander @ 0x%02x write FAILED!!!\n",
+				CONFIG_SYS_I2C_EXPANDER_ADDR);
+	}
+
+	/* For Ethernet RMII selection
+	 * P07(SelA)=0
+	 * P06(SelB)=1
+	 * P05(SelC)=1
+	 */
+	if (i2c_read(CONFIG_SYS_I2C_EXPANDER_ADDR, 2, 1, buf, 1)) {
+		printf("\nExpander @ 0x%02x read FAILED!!!\n",
+				CONFIG_SYS_I2C_EXPANDER_ADDR);
+	}
+
+	buf[0] &= 0x1f;
+	buf[0] |= (0 << 7) | (1 << 6) | (1 << 5);
+	if (i2c_write(CONFIG_SYS_I2C_EXPANDER_ADDR, 2, 1, buf, 1)) {
+		printf("\nExpander @ 0x%02x write FAILED!!!\n",
+				CONFIG_SYS_I2C_EXPANDER_ADDR);
+	}
+
+	/* Set the output as high */
+	temp = REG(GPIO_BANK2_REG_SET_ADDR);
+	temp |= (0x01 << 6);
+	REG(GPIO_BANK2_REG_SET_ADDR) = temp;
+
+	/* Set the GPIO direction as output */
+	temp = REG(GPIO_BANK2_REG_DIR_ADDR);
+	temp &= ~(0x01 << 6);
+	REG(GPIO_BANK2_REG_DIR_ADDR) = temp;
+
+	return 0;
+}
+#endif /* CONFIG_DRIVER_TI_EMAC_USE_RMII */
+
 int misc_init_r(void)
 {
 	uint8_t tmp[20], addr[10];
@@ -389,6 +477,11 @@ int misc_init_r(void)
 
 		setenv("ethaddr", (char *)tmp);
 	}
+#ifdef CONFIG_DRIVER_TI_EMAC_USE_RMII
+	/* Select RMII fucntion through the expander */
+	if (rmii_hw_init())
+		printf("RMII hardware init failed!!!\n");
+#endif
 
 	dspwake();
 

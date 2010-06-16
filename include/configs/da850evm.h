@@ -90,6 +90,7 @@
 #define CONFIG_DRIVER_DAVINCI_I2C
 #define CONFIG_SYS_I2C_SPEED		25000
 #define CONFIG_SYS_I2C_SLAVE		10 /* Bogus, master-only in U-Boot */
+#define CONFIG_SYS_I2C_EXPANDER_ADDR	0x20
 
 /*
  * Flash & Environment
@@ -146,6 +147,7 @@
 #ifdef CONFIG_DRIVER_TI_EMAC
 #define CONFIG_EMAC_MDIO_PHY_NUM	0
 #define CONFIG_MII
+#undef	CONFIG_DRIVER_TI_EMAC_USE_RMII
 #define CONFIG_BOOTP_DEFAULT
 #define CONFIG_BOOTP_DNS
 #define CONFIG_BOOTP_DNS2
