@@ -151,7 +151,12 @@ typedef volatile unsigned int *	dv_reg_p;
 #define DAVINCI_DDR_EMIF_DATA_BASE		0xc0000000
 #define DAVINCI_INTC_BASE			0xfffee000
 #define DAVINCI_BOOTCFG_BASE			0x01c14000
+#define DAVINCI_L3CBARAM_BASE			0x80000000
 #define JTAG_ID_REG                            (DAVINCI_BOOTCFG_BASE + 0x18)
+#define CHIP_REV_ID_REG				(DAVINCI_BOOTCFG_BASE + 0x24)
+#define HOST1CFG				(DAVINCI_BOOTCFG_BASE + 0x44)
+#define PSC0_MDCTL				(DAVINCI_PSC0_BASE + 0xa00)
+
 
 #endif /* CONFIG_SOC_DA8XX */
 
