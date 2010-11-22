@@ -81,6 +81,7 @@
 #define CONFIG_GENERIC_MMC
 #define CONFIG_DAVINCI_MMC
 #define CONFIG_DAVINCI_MMC_SD1
+#define CONFIG_MMC_MBLOCK
 
 /* USB: OTG connector */
 /* NYET -- #define CONFIG_USB_DAVINCI */
