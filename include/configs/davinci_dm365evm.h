@@ -38,6 +38,7 @@
 #define CONFIG_NR_DRAM_BANKS		1
 #define PHYS_SDRAM_1			0x80000000
 #define PHYS_SDRAM_1_SIZE		(128 << 20)	/* 128 MiB */
+#define CONFIG_MAX_RAM_BANK_SIZE	(256 << 20)	/* Max supported */
 
 /* Serial Driver info: UART0 for console  */
 #define CONFIG_SYS_NS16550
