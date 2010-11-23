@@ -182,6 +182,14 @@
 #undef CONFIG_ENV_IS_IN_FLASH
 #endif
 
+#if defined(CONFIG_MMC) && !defined(CONFIG_ENV_IS_IN_NAND)
+#define CONFIG_CMD_ENV
+#define CONFIG_ENV_SIZE		(16 << 10)	/* 16 KiB */
+#define CONFIG_ENV_OFFSET	(51 << 9)	/* Sector 51 */
+#define CONFIG_ENV_IS_IN_MMC
+#undef CONFIG_ENV_IS_IN_FLASH
+#endif
+
 #define CONFIG_BOOTDELAY	3
 #define CONFIG_BOOTCOMMAND \
 		"dhcp;bootm"
