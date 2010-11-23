@@ -192,11 +192,10 @@
 #endif
 
 #define CONFIG_BOOTDELAY	3
-#define CONFIG_BOOTCOMMAND \
-		"dhcp;bootm"
+#define CONFIG_BOOTCOMMAND	"if mmc rescan 0; then if fatload mmc 0 0x80600000 boot.scr; then source 0x80600000; else fatload mmc 0 0x80700000 uImage; bootm 80700000; fi; fi"
 #define CONFIG_BOOTARGS \
 		"console=ttyS0,115200n8 " \
-		"root=/dev/mmcblk0p1 rootwait rootfstype=ext3 ro"
+		"root=/dev/mmcblk0p2 rw rootwait ip=off"
 
 #define CONFIG_CMDLINE_EDITING
 #define CONFIG_VERSION_VARIABLE
