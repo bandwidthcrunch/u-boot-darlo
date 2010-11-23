@@ -32,6 +32,7 @@
 #include <linux/list.h>
 #include <mmc.h>
 #include <div64.h>
+#include <asm-generic/errno.h>
 
 static struct list_head mmc_devices;
 static int cur_dev_num = -1;
@@ -898,7 +899,7 @@ int mmc_init(struct mmc *mmc)
 
 		if (err) {
 			printf("Card did not respond to voltage select!\n");
-			return UNUSABLE_ERR;
+			return ENODEV;
 		}
 	}
 

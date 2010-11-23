@@ -151,9 +151,9 @@ int do_mmcops(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 			if (!mmc)
 				return 1;
 
-			mmc_init(mmc);
+			rc = mmc_init(mmc);
 
-			return 0;
+			return rc;
 		} else if (strncmp(argv[1], "part", 4) == 0) {
 			int dev = simple_strtoul(argv[2], NULL, 10);
 			block_dev_desc_t *mmc_dev;
