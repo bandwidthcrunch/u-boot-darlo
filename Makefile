@@ -1263,7 +1263,7 @@ clean:
 	@rm -f $(obj)examples/api/demo{,.bin}
 	@rm -f $(obj)tools/bmp_logo	   $(obj)tools/easylogo/easylogo  \
 	       $(obj)tools/env/{fw_printenv,fw_setenv}			  \
-	       $(obj)tools/envcrc					  \
+	       $(obj)tools/envcrc	   $(obj)tools/uflash/uflash	  \
 	       $(obj)tools/gdb/{astest,gdbcont,gdbsend}			  \
 	       $(obj)tools/gen_eth_addr    $(obj)tools/img2srec		  \
 	       $(obj)tools/mkimage	   $(obj)tools/mpc86x_clk	  \
