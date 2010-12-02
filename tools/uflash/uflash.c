@@ -90,7 +90,7 @@ static void usage(void)
 
 int main(int argc, char *argv[])
 {
-	int i, devfd, c, readlen;
+	int i, devfd, c, readlen, writelen;
 	int req_blocks, part1_offset;
 	int ubl_size, uboot_size;
 	struct rbl_header *rblp;
@@ -209,7 +209,11 @@ int main(int argc, char *argv[])
 	verbose_printf("Writing UBL Signature\n");
 	lseek(devfd, (BLOCK_SIZE * UBL_SIGN_START), SEEK_SET);
 	for (i = UBL_SIGN_START; i < (UBL_SIGN_COUNT + UBL_SIGN_START); i++) {
-		write(devfd, rblp, BLOCK_SIZE);
+		writelen = write(devfd, rblp, BLOCK_SIZE);
+		if (writelen < BLOCK_SIZE) {
+			close(devfd);
+			return -1;
+		}
 	}
 
 	/* Write UBL Binary */
@@ -240,7 +244,11 @@ int main(int argc, char *argv[])
 	lseek(devfd, (BLOCK_SIZE * UBOOT_SIGN_START), SEEK_SET);
 	for (i = UBOOT_SIGN_START; i < (UBOOT_SIGN_COUNT + UBOOT_SIGN_START);
 			i++) {
-		write(devfd, rblp, BLOCK_SIZE);
+		writelen = write(devfd, rblp, BLOCK_SIZE);
+		if (writelen < BLOCK_SIZE) {
+			close(devfd);
+			return -1;
+		}
 	}
 
 	/* Write U-Boot File */
@@ -295,7 +303,7 @@ static int get_file_size(char *fname)
 static int write_file(int devfd, char *fname)
 {
 	FILE *fp;
-	int readlen;
+	int readlen, writelen;
 
 	fp = fopen(fname, "rb");
 	if (fp == NULL) {
@@ -308,7 +316,11 @@ static int write_file(int devfd, char *fname)
 		if (readlen < BLOCK_SIZE) {
 			memset(&readbuf[readlen], 0, BLOCK_SIZE-readlen);
 		}
-		write(devfd, readbuf, BLOCK_SIZE);
+		writelen = write(devfd, readbuf, BLOCK_SIZE);
+		if (writelen < BLOCK_SIZE) {
+			fclose(fp);
+			return -1;
+		}
 	}
 
 	fclose(fp);
