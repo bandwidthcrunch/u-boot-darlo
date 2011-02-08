@@ -479,8 +479,13 @@ int misc_init_r(void)
 	printf("ARM Clock : %d Hz\n", clk_get(DAVINCI_ARM_CLKID));
 
 	if (getenv("ethaddr") == NULL) {
-		/* Set Ethernet MAC address from EEPROM */
-		get_mac_addr(addr);
+		/* Read Ethernet MAC address from EEPROM */
+		if (dvevm_read_mac_address(addr)) {
+			/* Set Ethernet MAC address from EEPROM */
+			davinci_sync_env_enetaddr(addr);
+		} else {
+			get_mac_addr(addr);
+		}
 
 		if (is_multicast_ether_addr(addr) || is_zero_ether_addr(addr)) {
 			printf("Invalid MAC address read.\n");
