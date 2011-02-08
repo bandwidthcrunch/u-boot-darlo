@@ -181,6 +181,14 @@ static const struct lpsc_resource lpsc[] = {
 #define CONFIG_DA850_EVM_MAX_CPU_CLK	300000000
 #endif
 
+u32 get_board_type(void)
+{
+	if (i2c_probe(0x50) == 0)
+		return 1;
+	else
+		return 0;
+}
+
 /*
  * get_board_rev() - setup to pass kernel board revision information
  * Returns:
@@ -195,6 +203,7 @@ u32 get_board_rev(void)
 	char *s;
 	u32 maxcpuclk = CONFIG_DA850_EVM_MAX_CPU_CLK;
 	u32 rev = 0;
+	u32 btype;
 
 	s = getenv("maxcpuclk");
 	if (s)
@@ -206,6 +215,11 @@ u32 get_board_rev(void)
 		rev = 2;
 	else if (maxcpuclk >= 372000000)
 		rev = 1;
+
+	btype = get_board_type();
+
+	if (btype == 1)
+		rev |= 0x100;
 
 	return rev;
 }
