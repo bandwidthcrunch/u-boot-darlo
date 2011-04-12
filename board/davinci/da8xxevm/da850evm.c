@@ -34,6 +34,10 @@
 #include <asm/errno.h>
 #include "../common/misc.h"
 #include "common.h"
+#ifdef CONFIG_DAVINCI_MMC
+#include <mmc.h>
+#include <asm/arch/sdmmc_defs.h>
+#endif
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -46,6 +50,19 @@ static const struct pinmux_config spi1_pins[] = {
 	{ pinmux(5), 1, 4 },
 	{ pinmux(5), 1, 5 }
 };
+
+#ifdef CONFIG_DAVINCI_MMC
+/* MMC0 pin muxer settings */
+const struct pinmux_config mmc0_pins[] = {
+	{ pinmux(10), 2, 0 },	/* MMCSD0_CLK */
+	{ pinmux(10), 2, 1 },	/* MMCSD0_CMD */
+	{ pinmux(10), 2, 2 },	/* MMCSD0_DAT_0 */
+	{ pinmux(10), 2, 3 },	/* MMCSD0_DAT_1 */
+	{ pinmux(10), 2, 4 },	/* MMCSD0_DAT_2 */
+	{ pinmux(10), 2, 5 },	/* MMCSD0_DAT_3 */
+	/* DA850 supports only 4-bit mode, remaining pins are not configured */
+};
+#endif
 
 /* UART pin muxer settings */
 static const struct pinmux_config uart_pins[] = {
@@ -175,6 +192,9 @@ static const struct lpsc_resource lpsc[] = {
 	{ DAVINCI_LPSC_EMAC },	/* image download */
 	{ DAVINCI_LPSC_UART2 },	/* console */
 	{ DAVINCI_LPSC_GPIO },
+#ifdef CONFIG_DAVINCI_MMC
+	{ DAVINCI_LPSC_MMC_SD },
+#endif		
 };
 
 #ifndef CONFIG_DA850_EVM_MAX_CPU_CLK
@@ -272,6 +292,11 @@ int board_init(void)
 	/* configure pinmux settings */
 	if (davinci_configure_pin_mux_items(pinmuxes, ARRAY_SIZE(pinmuxes)))
 		return 1;
+
+#ifdef CONFIG_DAVINCI_MMC
+	if (davinci_configure_pin_mux(mmc0_pins, ARRAY_SIZE(mmc0_pins)) != 0)
+		return 1;
+#endif
 
 #ifdef CONFIG_DRIVER_TI_EMAC
 	if (davinci_configure_pin_mux(emac_pins, ARRAY_SIZE(emac_pins)) != 0)
@@ -506,3 +531,20 @@ int misc_init_r(void)
 
 	return 0;
 }
+
+#ifdef CONFIG_DAVINCI_MMC
+static struct davinci_mmc mmc_sd0 = {
+	.reg_base = (struct davinci_mmc_regs *)DAVINCI_MMC_SD0_BASE,
+	.host_caps = MMC_MODE_4BIT,     /* DA850 supports only 4-bit SD/MMC */
+	.voltages = MMC_VDD_32_33 | MMC_VDD_33_34,
+	.version = MMC_CTLR_VERSION_2,
+};
+
+int board_mmc_init(bd_t *bis)
+{
+	mmc_sd0.input_clk = clk_get(DAVINCI_MMCSD_CLKID);
+
+	/* Add slot-0 to mmc subsystem */
+	return davinci_mmc_init(bis, &mmc_sd0);
+}
+#endif
