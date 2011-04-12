@@ -184,8 +184,8 @@
 #define CONFIG_CMDLINE_TAG
 #define CONFIG_REVISION_TAG
 #define CONFIG_SETUP_MEMORY_TAGS
-#define CONFIG_BOOTARGS		"mem=32M console=ttyS2,115200n8 root=/dev/mmcblk0p1 rw rootwait ip=off"
-#define CONFIG_BOOTCOMMAND	"sf probe 0;sf read 0xc0700000 0x80000 0x220000;bootm 0xc0700000"
+#define CONFIG_BOOTARGS		"mem=32M console=ttyS2,115200n8 root=/dev/mmcblk0p2 rw rootwait ip=off"
+#define CONFIG_BOOTCOMMAND	"if fatload mmc 0 0xc0600000 boot.scr; then source 0xc0600000; else if fatload mmc 0 0xc0700000 uImage; then bootm c0700000; else sf probe 0; sf read 0xc0700000 0x80000 0x220000; bootm 0xc0700000; fi; fi"
 #define CONFIG_BOOTDELAY	3
 
 /*
