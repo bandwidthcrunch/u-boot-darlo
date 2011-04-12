@@ -54,6 +54,8 @@ static const struct pinmux_config spi1_pins[] = {
 #ifdef CONFIG_DAVINCI_MMC
 /* MMC0 pin muxer settings */
 const struct pinmux_config mmc0_pins[] = {
+	/* GP0[11] is required for SD to work on Rev 3 EVMs */
+	{ pinmux(0),  8, 4 },	/* GP0[11] */
 	{ pinmux(10), 2, 0 },	/* MMCSD0_CLK */
 	{ pinmux(10), 2, 1 },	/* MMCSD0_CMD */
 	{ pinmux(10), 2, 2 },	/* MMCSD0_DAT_0 */
@@ -119,6 +121,8 @@ const struct pinmux_config nand_pins[] = {
 };
 #elif defined (CONFIG_SYS_USE_NOR)
 const struct pinmux_config nor_pins[] = {
+	/* GP0[11] is required for SD to work on Rev 3 EVMs */
+	{ pinmux(0), 8, 4 },	/* GP0[11] */
 	{ pinmux(5), 1, 6 },
 	{ pinmux(6), 1, 6 },
 	{ pinmux(7), 1, 0 },
@@ -246,6 +250,7 @@ u32 get_board_rev(void)
 
 int board_init(void)
 {
+	unsigned int temp;
 #ifndef CONFIG_USE_IRQ
 	irq_init();
 #endif
@@ -293,9 +298,31 @@ int board_init(void)
 	if (davinci_configure_pin_mux_items(pinmuxes, ARRAY_SIZE(pinmuxes)))
 		return 1;
 
+#ifdef CONFIG_SYS_USE_NOR	
+	/* Set the GPIO direction as output */
+	temp = REG(GPIO_BANK0_REG_DIR_ADDR);
+	temp &= ~(0x01 << 11);
+	REG(GPIO_BANK0_REG_DIR_ADDR) = temp;
+
+	/* Set the output as low */
+	temp = REG(GPIO_BANK0_REG_SET_ADDR);
+	temp |= (0x01 << 11);
+	REG(GPIO_BANK0_REG_CLR_ADDR) = temp;
+#endif	
+
 #ifdef CONFIG_DAVINCI_MMC
 	if (davinci_configure_pin_mux(mmc0_pins, ARRAY_SIZE(mmc0_pins)) != 0)
 		return 1;
+
+	/* Set the GPIO direction as output */
+	temp = REG(GPIO_BANK0_REG_DIR_ADDR);
+	temp &= ~(0x01 << 11);
+	REG(GPIO_BANK0_REG_DIR_ADDR) = temp;
+
+	/* Set the output as high */
+	temp = REG(GPIO_BANK0_REG_SET_ADDR);
+	temp |= (0x01 << 11);
+	REG(GPIO_BANK0_REG_SET_ADDR) = temp;
 #endif
 
 #ifdef CONFIG_DRIVER_TI_EMAC
