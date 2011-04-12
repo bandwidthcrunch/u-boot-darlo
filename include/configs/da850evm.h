@@ -250,6 +250,17 @@
 #define CONFIG_CMD_EXT2
 #define CONFIG_CMD_FAT
 #define CONFIG_CMD_MMC
+#undef CONFIG_ENV_IS_IN_MMC
+#endif
+
+#ifdef CONFIG_ENV_IS_IN_MMC
+#undef CONFIG_ENV_SIZE
+#undef CONFIG_ENV_OFFSET
+#define CONFIG_ENV_SIZE		(16 << 10)	/* 16 KiB */
+#define CONFIG_ENV_OFFSET	(51 << 9)	/* Sector 51 */
+#undef CONFIG_ENV_IS_IN_FLASH
+#undef CONFIG_ENV_IS_IN_NAND
+#undef CONFIG_ENV_IS_IN_SPI_FLASH
 #endif
 
 /* additions for new relocation code, must added to all boards */
