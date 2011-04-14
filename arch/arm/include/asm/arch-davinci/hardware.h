@@ -381,8 +381,14 @@ struct davinci_pllc_regs {
 #define DAVINCI_PLLC_DIV_MASK	0x1f
 
 #define ASYNC3          get_async3_src()
+#define EMIFB		get_emifb_src()
+
+#define PLL1_PLLM		((1 << 16) | DAVINCI_PLLM_CLKID)
+#define PLL1_SYSCLK1		((1 << 16) | 0x1)
 #define PLL1_SYSCLK2		((1 << 16) | 0x2)
 #define DAVINCI_SPI1_CLKID  (cpu_is_da830() ? 2 : ASYNC3)
+#define DAVINCI_DDR_CLKID	EMIFB
+
 /* Clock IDs */
 enum davinci_clk_ids {
 	DAVINCI_MMCSD_CLKID = 2,
@@ -482,6 +488,12 @@ static inline int get_async3_src(void)
 {
 	return (REG(&davinci_syscfg_regs->cfgchip3) & 0x10) ?
 			PLL1_SYSCLK2 : 2;
+}
+
+static inline int get_emifb_src(void)
+{
+	return ((REG(&davinci_syscfg_regs->cfgchip3) & 0x80) ?
+			PLL1_PLLM : PLL1_SYSCLK1);
 }
 
 #endif /* CONFIG_SOC_DA8XX */
