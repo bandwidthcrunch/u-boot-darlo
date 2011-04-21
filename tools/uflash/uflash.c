@@ -54,7 +54,7 @@ struct rbl_header {
 #define UBOOT_SIGN_START		25
 #define UBOOT_SIGN_COUNT		26
 #define UBOOT_MAGIC_NUM			0xA1ACED66
-#define DM355_UBOOT_LOAD_ADDRESS	0x81080000
+#define DM3XX_UBOOT_LOAD_ADDRESS	0x81080000
 #define DA850_UBOOT_LOAD_ADDRESS	0xC1080000
 
 #define PART1_LBA_OFFSET		0x000001C6
@@ -82,11 +82,11 @@ static void usage(void)
 	printf ("\t-d DEVNAME     - Block device Name/Node (%s)\r\n", DEV_NAME);
 	printf ("\t-u UBL_FILE    - UBL File Name (%s)\r\n", UBL_NAME);
 	printf ("\t-b UBOOT_FILE  - UBoot File Name (%s)\r\n", UBOOT_NAME);
-	printf ("\t-p PLATFORM    - Platform name (DM355/OMAPL138)\r\n");
-	printf ("\t-e UBOOT_ENTRY - UBoot Entry Point (0x%X - for DM355, 0x%X - for OMAPL138)\r\n",
-		DM355_UBOOT_LOAD_ADDRESS, DA850_UBOOT_LOAD_ADDRESS);
-	printf ("\t-l UBOOT_LOAD  - UBoot Load Address (0x%X - for DM355, 0x%X - for OMAPL138)\r\n",
-		DM355_UBOOT_LOAD_ADDRESS, DA850_UBOOT_LOAD_ADDRESS);
+	printf ("\t-p PLATFORM    - Platform name (DM3XX/OMAPL138)\r\n");
+	printf ("\t-e UBOOT_ENTRY - UBoot Entry Point (0x%X - for DM3XX, 0x%X - for OMAPL138)\r\n",
+		DM3XX_UBOOT_LOAD_ADDRESS, DA850_UBOOT_LOAD_ADDRESS);
+	printf ("\t-l UBOOT_LOAD  - UBoot Load Address (0x%X - for DM3XX, 0x%X - for OMAPL138)\r\n",
+		DM3XX_UBOOT_LOAD_ADDRESS, DA850_UBOOT_LOAD_ADDRESS);
 	printf ("\r\n");
 }
 
@@ -134,11 +134,11 @@ int main (int argc, char *argv[])
 	if (!ubl_name)
 		uboot_start_block = UBL_START_BLOCK;
 
-	if (!strcmp(platform, "DM355")) {
+	if (!strcmp(platform, "DM3XX")) {
 		if (!uboot_load_address)
-			uboot_load_address = DM355_UBOOT_LOAD_ADDRESS;
+			uboot_load_address = DM3XX_UBOOT_LOAD_ADDRESS;
 		if (!uboot_entry_point)
-			uboot_entry_point = DM355_UBOOT_LOAD_ADDRESS;
+			uboot_entry_point = DM3XX_UBOOT_LOAD_ADDRESS;
 	}
 
 	if (!strcmp(platform, "OMAPL138")) {
@@ -168,7 +168,7 @@ int main (int argc, char *argv[])
 	}
 
 	/* Get UBL file size and round it to upper 512 byte boundary */
-	if(!strcmp(platform, "DM355")) {
+	if(!strcmp(platform, "DM3XX")) {
 		ubl_size = get_file_size(ubl_name);
 		if (ubl_size < 0) {
 			close(devfd);
@@ -196,7 +196,7 @@ int main (int argc, char *argv[])
 
 	/* Add MBR + UBL Size + Uboot Size */
 
-	if(!(strcmp(platform, "DM355"))) {	
+	if(!(strcmp(platform, "DM3XX"))) {	
 		req_blocks = UBL_START_BLOCK + (ubl_size / BLOCK_SIZE) +
 		UBL_BLOCK_OFFSET + (uboot_size / BLOCK_SIZE) + 1;
 		printf ("Required Blocks %d, Available Blocks %d\n", req_blocks,
@@ -251,7 +251,7 @@ int main (int argc, char *argv[])
 	rblp->entry_point   = uboot_entry_point;
 	rblp->num_blocks    = (uboot_size / BLOCK_SIZE) + 1;
 
-	if(!strcmp(platform, "DM355")) {
+	if(!strcmp(platform, "DM3XX")) {
 		rblp->start_block   = UBL_START_BLOCK + (ubl_size / BLOCK_SIZE) +
 					UBL_BLOCK_OFFSET;
 	} else if(!strcmp(platform, "OMAPL138")) {
@@ -274,7 +274,7 @@ int main (int argc, char *argv[])
 
 	/* Write U-Boot Signature */
 	verbose_printf ("Writing U-Boot Signature\n");
-	if(!strcmp(platform, "DM355")) {
+	if(!strcmp(platform, "DM3XX")) {
 		lseek (devfd, (BLOCK_SIZE * UBOOT_SIGN_START), SEEK_SET);
 	} else {
 		lseek (devfd, (BLOCK_SIZE * uboot_sign_start), SEEK_SET);
