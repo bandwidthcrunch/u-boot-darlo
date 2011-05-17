@@ -76,6 +76,15 @@ static const struct pinmux_config uart_pins[] = {
 
 #ifdef CONFIG_DRIVER_TI_EMAC
 static const struct pinmux_config emac_pins[] = {
+#ifdef CONFIG_DRIVER_TI_EMAC_USE_RMII
+	{ pinmux(14), 8, 2 },
+	{ pinmux(14), 8, 3 },
+	{ pinmux(14), 8, 4 },
+	{ pinmux(14), 8, 5 },
+	{ pinmux(14), 8, 6 },
+	{ pinmux(14), 8, 7 },
+	{ pinmux(15), 8, 1 },
+#else	
 	{ pinmux(2), 8, 1 },
 	{ pinmux(2), 8, 2 },
 	{ pinmux(2), 8, 3 },
@@ -91,6 +100,7 @@ static const struct pinmux_config emac_pins[] = {
 	{ pinmux(3), 8, 5 },
 	{ pinmux(3), 8, 6 },
 	{ pinmux(3), 8, 7 },
+#endif /* CONFIG_DRIVER_TI_EMAC_USE_RMII */	
 	{ pinmux(4), 8, 0 },
 	{ pinmux(4), 8, 1 }
 };
