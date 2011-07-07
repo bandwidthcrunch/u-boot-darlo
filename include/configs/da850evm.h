@@ -241,9 +241,11 @@
 #endif
 
 /* SD/MMC */
+#ifndef CONFIG_SYS_USE_NOR
 #define CONFIG_MMC
 #define CONFIG_GENERIC_MMC
 #define CONFIG_DAVINCI_MMC
+#endif
 
 #ifdef CONFIG_MMC
 #define CONFIG_DOS_PARTITION
