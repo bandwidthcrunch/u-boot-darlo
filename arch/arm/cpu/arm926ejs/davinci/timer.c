@@ -39,6 +39,7 @@
 
 #include <common.h>
 #include <asm/io.h>
+#include <asm/arch/hardware.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -58,10 +59,52 @@ struct davinci_timer {
 
 static struct davinci_timer * const timer =
 	(struct davinci_timer *)CONFIG_SYS_TIMERBASE;
+static struct davinci_timer * const wdtimer =
+	(struct davinci_timer *) DAVINCI_WDOG_BASE;
 
 #define TIMER_LOAD_VAL	0xffffffff
 
 #define TIM_CLK_DIV	16
+
+#ifdef CONFIG_WATCHDOG
+static void wd_timer_init(void)
+{
+	uint64_t timeo = ((uint64_t) CONFIG_SYS_HZ_CLOCK) *
+				((uint64_t) CONFIG_SYS_WATCHDOG_VALUE);
+
+	/* Disable, internal clock source */
+	writel(0x0, &wdtimer->tcr);
+
+	/* Reset timer, set mode to 64-bit watchdog, and unreset */
+	writel(0x0, &wdtimer->tgcr);
+	writel((2 << 2) | 3, &wdtimer->tgcr);
+
+	/* Clear counter regs */
+	writel(0x0, &wdtimer->tim12);
+	writel(0x0, &wdtimer->tim34);
+
+	/* Set timeout period */
+	writel(timeo & 0xffffffff, &wdtimer->prd12);
+	writel(timeo >> 32, &wdtimer->prd34);
+
+	/* Enable run continuously */
+	writel((2 << 6) | (2 << 22), &wdtimer->tcr);
+
+	writel(0xa5c64000, &wdtimer->wdtcr);
+	writel(0xda7e4000, &wdtimer->wdtcr);
+}
+
+void watchdog_reset(void)
+{
+	writel(0x0, &wdtimer->tim12);
+	writel(0x0, &wdtimer->tim34);
+	writel(0xa5c60000, &wdtimer->wdtcr);
+	writel(0xda7e0000, &wdtimer->wdtcr);
+}
+
+#else
+static void wd_timer_init(void) { /* nop */ }
+#endif
 
 int timer_init(void)
 {
@@ -74,6 +117,8 @@ int timer_init(void)
 	writel(2 << 22, &timer->tcr);
 	gd->timer_rate_hz = CONFIG_SYS_HZ_CLOCK / TIM_CLK_DIV;
 	gd->timer_reset_value = 0;
+
+	wd_timer_init();
 
 	return(0);
 }

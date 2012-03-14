@@ -26,6 +26,8 @@
 
 /* Darlo DM368 based board */
 #define DAVINCI_DARLO
+#define CONFIG_WATCHDOG
+#define CONFIG_SYS_WATCHDOG_VALUE (3 * 60)
 
 #define CONFIG_SKIP_LOWLEVEL_INIT	/* U-Boot is a 3rd stage loader */
 #define CONFIG_SYS_NO_FLASH		/* that is, no *NOR* flash */
